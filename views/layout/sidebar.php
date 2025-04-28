@@ -2,7 +2,7 @@
     <div class="position-sticky pt-3">
         <ul class="nav flex-column">
             <li class="nav-item">
-                <a class="nav-link active" href="<?= BASE_URL ?>/views//dashboard/admin">
+                <a class="nav-link active" href="<?= BASE_URL ?>/views/dashboard/admin">
                     <i class="bi bi-house-door"></i>
                     Tableau de bord
                 </a>

@@ -29,7 +29,7 @@ class Router {
             // Handle root path (/)
             if (empty($requestPath)) {
                 error_log("Root path detected, redirecting to login");
-                $this->redirect('/auth/login');
+                header('Location: ' . BASE_URL . '/public/auth/login');
                 exit();
             }
 
@@ -37,7 +37,7 @@ class Router {
             if (!$this->isPublicRoute($requestPath)) {
                 if (!isset($_SESSION['user_id'])) {
                     error_log("Unauthorized access attempt to: " . $requestPath);
-                    $this->redirect('/auth/login');
+                    header('Location: ' . BASE_URL . '/public/auth/login');
                     exit();
                 }
                 
@@ -56,7 +56,17 @@ class Router {
                 if ($route['method'] === $requestMethod && $this->matchRoute($route['path'], $requestPath)) {
                     error_log("Route matched: " . $route['path']);
                     list($controller, $method) = explode('@', $route['handler']);
-                    return $this->executeRoute($controller, $method);
+                    
+                    // Load and instantiate controller
+                    $controllerClass = ucfirst($controller);
+                    $controllerFile = dirname(__DIR__) . '/controllers/' . $controllerClass . '.php';
+                    
+                    if (!file_exists($controllerFile)) {
+                        throw new Exception("Controller file not found: " . $controllerFile);
+                    }
+                    
+                    require_once $controllerFile;
+                    return $this->executeRoute($controllerClass, $method);
                 }
             }
             
