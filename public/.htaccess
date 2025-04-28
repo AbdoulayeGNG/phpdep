@@ -6,12 +6,5 @@
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
     
-    # PHP 5.6 compatible rewrite rule
-    RewriteRule ^(.*)$ index.php?url=$1 [L,QSA]
-    
-    # PHP 5.6 specific settings
-    php_flag display_errors On
-    php_value error_reporting E_ALL
-    php_flag log_errors On
-    php_value error_log "C:/wamp64/logs/php_error.log"
+    RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
 </IfModule>

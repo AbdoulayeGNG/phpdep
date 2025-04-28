@@ -3,6 +3,6 @@
     RewriteBase /phpProject/
     
     # Redirect everything to public folder
-    RewriteCond %{REQUEST_URI} !^/public/
-    RewriteRule ^(.*)$ public/$1 [L]
+    RewriteCond %{REQUEST_URI} !^/phpProject/public/
+    RewriteRule ^(.*)$ /phpProject/public/$1 [L,R=302]
 </IfModule>

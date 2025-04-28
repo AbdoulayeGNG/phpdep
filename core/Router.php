@@ -29,7 +29,7 @@ class Router {
             // Handle root path (/)
             if (empty($requestPath)) {
                 error_log("Root path detected, redirecting to login");
-                header('Location: ' . BASE_URL . '/public/auth/login');
+                $this->redirect('/auth/login');
                 exit();
             }
 
@@ -37,7 +37,7 @@ class Router {
             if (!$this->isPublicRoute($requestPath)) {
                 if (!isset($_SESSION['user_id'])) {
                     error_log("Unauthorized access attempt to: " . $requestPath);
-                    header('Location: ' . BASE_URL . '/public/auth/login');
+                    $this->redirect('/auth/login');
                     exit();
                 }
                 
@@ -61,7 +61,6 @@ class Router {
             }
             
             // No route found
-            error_log("No route found for: " . $requestPath);
             $this->show404();
 
         } catch (Exception $e) {
@@ -69,6 +68,14 @@ class Router {
             $this->showError($e->getMessage());
         }
     }
+
+    private function redirect($path) {
+        $url = BASE_URL . '' . $path;
+        error_log("Redirecting to: " . $url);
+        header('Location: ' . $url);
+        exit();
+    }
+    
 
     private function isProtectedRoute($path) {
         foreach ($this->protectedRoutes as $route) {
@@ -116,13 +123,13 @@ class Router {
 
     private function show404() {
         header("HTTP/1.0 404 Not Found");
-        require_once dirname(__DIR__) . '/views/404.php';
+        include dirname(__DIR__) . '/views/404.php';
         exit();
     }
 
     private function showError($message) {
         header("HTTP/1.0 500 Internal Server Error");
-        require_once dirname(__DIR__) . '/views/error.php';
+        include dirname(__DIR__) . '/views/error.php';
         exit();
     }
 }
