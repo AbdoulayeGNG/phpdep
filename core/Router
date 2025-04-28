@@ -1,0 +1,99 @@
+.php
+<?php
+class Router {
+    private $routes = [];
+
+    public function addRoute($method, $path, $handler) {
+        $this->routes[] = [
+            'method' => $method,
+            'path' => $path,
+            'handler' => $handler
+        ];
+    }
+
+    public function dispatch() {
+        try {
+            $requestMethod = $_SERVER['REQUEST_METHOD'];
+            $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+            
+            // Debug logging
+            error_log("Original URI: " . $requestUri);
+            
+            // Remove base path from URI
+            $basePath = '/phpProject';
+            $requestPath = str_replace($basePath, '', $requestUri);
+            $requestPath = trim($requestPath, '/');
+            
+            // Debug logging
+            error_log("Processed Path: " . $requestPath);
+
+            // Handle root path
+            if (empty($requestPath)) {
+                $this->handleRootPath();
+                return;
+            }
+
+            // Match routes
+            foreach ($this->routes as $route) {
+                $pattern = $this->convertRouteToPattern($route['path']);
+                
+                if ($route['method'] === $requestMethod && preg_match($pattern, $requestPath, $matches)) {
+                    array_shift($matches); // Remove full match
+                    return $this->executeRoute($route['handler'], $matches);
+                }
+            }
+            
+            // No route found
+            $this->handle404();
+
+        } catch (Exception $e) {
+            error_log("Router Error: " . $e->getMessage());
+            $this->handle500($e);
+        }
+    }
+
+    private function convertRouteToPattern($path) {
+        $path = trim($path, '/');
+        $pattern = preg_replace('/\{([a-zA-Z0-9_]+)\}/', '([^/]+)', $path);
+        return '/^' . str_replace('/', '\/', $pattern) . '$/';
+    }
+
+    private function executeRoute($handler, $params = []) {
+        list($controller, $method) = explode('@', $handler);
+        
+        if (!class_exists($controller)) {
+            throw new Exception("Controller not found: {$controller}");
+        }
+
+        $controllerInstance = new $controller();
+        
+        if (!method_exists($controllerInstance, $method)) {
+            throw new Exception("Method not found: {$method}");
+        }
+
+        return call_user_func_array([$controllerInstance, $method], $params);
+    }
+
+    private function handleRootPath() {
+        if (isset($_SESSION['user_role'])) {
+            header('Location: ' . BASE_URL . '/public/dashboard');
+        } else {
+            header('Location: ' . BASE_URL . '/public/auth/login');
+        }
+        exit();
+    }
+
+    private function handle404() {
+        header("HTTP/1.0 404 Not Found");
+        error_log("No route found for: " . $_SERVER['REQUEST_URI']);
+        require_once dirname(__DIR__) . '/views/404.php';
+        exit();
+    }
+
+    private function handle500(Exception $e) {
+        header("HTTP/1.0 500 Internal Server Error");
+        error_log("Internal Server Error: " . $e->getMessage());
+        require_once dirname(__DIR__) . '/views/error.php';
+        exit();
+    }
+}
