@@ -145,19 +145,20 @@ class UserController extends Controller {
         return $this->view('users/create');
     }
 
-    public function edit($id) {
+    public function edit($id = null) {
+        // Verify authentication and authorization
         if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
             header('Location: ' . BASE_URL . '/public/auth/login');
             exit();
         }
 
         try {
-            // Debug - Afficher l'ID reçu
-            error_log("Editing user with ID: " . $id);
+            if ($id === null) {
+                throw new Exception("ID utilisateur non spécifié");
+            }
 
-            $stmt = $this->conn->prepare("SELECT id, Nid, nom, email, date_naissance, sexe, role, statut 
-                                        FROM utilisateurs 
-                                        WHERE id = ?");
+            // Get user data
+            $stmt = $this->conn->prepare("SELECT * FROM utilisateurs WHERE id = ?");
             $stmt->execute([$id]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -167,14 +168,15 @@ class UserController extends Controller {
                 exit();
             }
 
-            // Debug - Afficher les données récupérées
-            error_log("User data found: " . print_r($user, true));
+            // Load the edit view
+            return $this->view('users/edit', [
+                'user' => $user,
+                'pageTitle' => 'Modifier Utilisateur'
+            ]);
 
-            return $this->view('users/edit', ['user' => $user]);
-
-        } catch (PDOException $e) {
-            error_log("Database error in edit: " . $e->getMessage());
-            $_SESSION['error'] = "Erreur lors du chargement de l'utilisateur";
+        } catch (Exception $e) {
+            error_log("Error in UserController@edit: " . $e->getMessage());
+            $_SESSION['error'] = "Une erreur est survenue";
             header('Location: ' . BASE_URL . '/public/users');
             exit();
         }

@@ -3,6 +3,7 @@ class Router {
     private $routes = [];
     private $protectedRoutes = ['dashboard', 'elections', 'candidats', 'users', 'rapports'];
     private $publicRoutes = ['auth/login', 'auth/register'];
+    private $currentRoute = null;
 
     public function addRoute($method, $path, $handler) {
         $this->routes[] = [
@@ -52,9 +53,10 @@ class Router {
             }
 
             // Match and execute route
-            foreach ($this->routes as $route) {
+            foreach ($this->routes as $key => $route) {
                 if ($route['method'] === $requestMethod && $this->matchRoute($route['path'], $requestPath)) {
                     error_log("Route matched: " . $route['path']);
+                    $this->currentRoute = $key;
                     list($controller, $method) = explode('@', $route['handler']);
                     
                     // Load and instantiate controller
@@ -128,7 +130,17 @@ class Router {
             throw new Exception("Method not found: {$method}");
         }
 
-        return $controllerInstance->$method();
+        // Get route parameters
+        $params = [];
+        $routePath = $this->routes[$this->currentRoute]['path'];
+        $requestPath = trim(str_replace('/phpProject/public', '', $_SERVER['REQUEST_URI']), '/');
+        
+        if (preg_match($this->convertRouteToPattern($routePath), $requestPath, $matches)) {
+            array_shift($matches); // Remove full match
+            $params = $matches;
+        }
+
+        return call_user_func_array([$controllerInstance, $method], $params);
     }
 
     private function show404() {
@@ -141,5 +153,23 @@ class Router {
         header("HTTP/1.0 500 Internal Server Error");
         include dirname(__DIR__) . '/views/error.php';
         exit();
+    }
+
+    private function convertRouteToPattern($route) {
+        // Remove leading/trailing slashes
+        $route = trim($route, '/');
+        
+        // Debug log
+        error_log("Converting route to pattern: " . $route);
+        
+        // Replace route parameters {param} with regex capture groups
+        $pattern = preg_replace('/\{([a-zA-Z0-9_]+)\}/', '([^/]+)', $route);
+        
+        // Add start/end markers and escape forward slashes
+        $pattern = '/^' . str_replace('/', '\/', $pattern) . '$/';
+        
+        error_log("Converted pattern: " . $pattern);
+        
+        return $pattern;
     }
 }

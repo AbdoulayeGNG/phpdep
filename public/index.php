@@ -14,7 +14,7 @@ $router->addRoute('GET', '/auth/logout', 'AuthController@logout');
 // Dashboard routes (protected)
 $router->addRoute('GET', '/dashboard', 'DashboardController@index'); // Main dashboard router
 $router->addRoute('GET', '/dashboard/admin', 'DashboardController@adminDashboard');
-$router->addRoute('GET', '/dashboard/user', 'DashboardController@userDashboard');
+$router->addRoute('GET', '/dashboard/user', 'ElecteurController@Dashboard');
 $router->addRoute('GET', '/dashboard/electeur', 'ElecteurController@dashboard');
 
 // Electeur routes (protected)
@@ -48,5 +48,9 @@ $router->addRoute('GET', '/candidats/delete/{id}', 'CandidatController@delete');
 $router->addRoute('GET', '/candidats/validate/{id}', 'CandidatController@validate');
 
 $router->addRoute('GET', '/rapports', 'RapportController@index');
+
+// Routes pour les paramètres
+$router->addRoute('GET', '/parametres', 'ParametreController@index');
+$router->addRoute('POST', '/parametres/update', 'ParametreController@update');
 
 $router->dispatch();

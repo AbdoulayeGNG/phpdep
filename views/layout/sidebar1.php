@@ -72,19 +72,13 @@
                     <span>Mon profil</span>
                 </a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link <?= strpos($_SERVER['REQUEST_URI'], 'notifications') !== false ? 'active' : '' ?>" 
-                   href="<?= BASE_URL ?>/notifications">
-                    <i class="bi bi-bell"></i>
-                    <span>Notifications</span>
-                </a>
-            </li>
+           
 
             <!-- Logout -->
-            <li class="nav-item mt-4">
+            <li class="nav-item">
                 <a class="nav-link text-danger" href="<?= BASE_URL ?>/auth/logout">
                     <i class="bi bi-box-arrow-right"></i>
-                    <span>Déconnexion</span>
+                    Déconnexion
                 </a>
             </li>
         </ul>

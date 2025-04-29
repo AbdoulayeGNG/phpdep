@@ -73,7 +73,7 @@ require_once __DIR__ . '/../../views/layout/header.php';
                                     </td>
                                     <td>
                                         <div class="btn-group">
-                                            <a href="<?php echo BASE_URL; ?>/views/users/edit/<?php echo $user['id']; ?>" 
+                                            <a href="<?php echo BASE_URL; ?>/users/edit/<?php echo $user['id']; ?>" 
                                                class="btn btn-sm btn-primary">
                                                 <i class="bi bi-pencil"></i>
                                             </a>

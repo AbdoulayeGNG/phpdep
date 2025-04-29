@@ -85,8 +85,8 @@ error_log("User data in edit view: " . print_r($user, true));
                             <label for="sexe" class="form-label">Sexe</label>
                             <select class="form-select" id="sexe" name="sexe" required>
                                 <option value="">Sélectionner...</option>
-                                <option value="M" <?php echo $user['sexe'] === 'M' ? 'selected' : ''; ?>>Homme</option>
-                                <option value="F" <?php echo $user['sexe'] === 'F' ? 'selected' : ''; ?>>Femme</option>
+                                <option value="Homme" <?php echo $user['sexe'] === 'M' ? 'selected' : ''; ?>>Homme</option>
+                                <option value="Femme" <?php echo $user['sexe'] === 'F' ? 'selected' : ''; ?>>Femme</option>
                             </select>
                         </div>
 

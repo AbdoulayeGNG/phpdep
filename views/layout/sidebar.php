@@ -36,7 +36,7 @@
                 </li>
             <?php endif; ?>
             <li class="nav-item">
-                <a class="nav-link" href="<?= BASE_URL ?>/settings">
+                <a class="nav-link" href="<?= BASE_URL ?>/parametres">
                     <i class="bi bi-gear"></i>
                     Paramètres
                 </a>
