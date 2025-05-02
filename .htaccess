@@ -2,7 +2,7 @@
     RewriteEngine On
     RewriteBase /phpProject/
     
-    # Redirect everything to public folder
-    RewriteCond %{REQUEST_URI} !^/phpProject/public/
-    RewriteRule ^(.*)$ /phpProject/public/$1 [L,R=302]
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ public/index.php [L,QSA]
 </IfModule>

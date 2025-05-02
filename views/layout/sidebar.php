@@ -2,9 +2,9 @@
     <div class="position-sticky pt-3">
         <ul class="nav flex-column">
             <li class="nav-item">
-                <a class="nav-link active" href="<?= BASE_URL ?>/views/dashboard/admin">
+                <a class="nav-link" href="<?= BASE_URL ?>/public/dashboard/admin">
                     <i class="bi bi-house-door"></i>
-                    Tableau de bord
+                    accueil
                 </a>
             </li>
             <li class="nav-item">
@@ -36,7 +36,7 @@
                 </li>
             <?php endif; ?>
             <li class="nav-item">
-                <a class="nav-link" href="<?= BASE_URL ?>/parametres">
+                <a class="nav-link" href="<?= BASE_URL ?>/public/parametres">
                     <i class="bi bi-gear"></i>
                     Paramètres
                 </a>
@@ -54,7 +54,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link text-danger" href="<?= BASE_URL ?>/auth/logout">
+                <a class="nav-link text-danger" href="<?= BASE_URL ?>/public/auth/logout">
                     <i class="bi bi-box-arrow-right"></i>
                     Déconnexion
                 </a>

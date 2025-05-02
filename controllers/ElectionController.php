@@ -193,4 +193,46 @@ class ElectionController extends Controller {
             }
         }
     }
+
+    public function showCandidats($id) {
+        try {
+            // Récupérer les détails de l'élection
+            $stmt = $this->conn->prepare("SELECT * FROM elections WHERE id = ?");
+            $stmt->execute([$id]);
+            $election = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$election) {
+                throw new Exception("Élection non trouvée");
+            }
+
+            // Vérifier si l'utilisateur a déjà voté
+            $stmt = $this->conn->prepare("
+                SELECT COUNT(*) FROM votes 
+                WHERE election_id = ? AND electeur_id = ?
+            ");
+            $stmt->execute([$id, $_SESSION['user_id']]);
+            $a_vote = $stmt->fetchColumn() > 0;
+
+            // Récupérer les candidats
+            $stmt = $this->conn->prepare("
+                SELECT c.*, u.nom 
+                FROM candidats c 
+                JOIN utilisateurs u ON c.utilisateur_id = u.id 
+                WHERE c.election_id = ? AND c.valide = 1
+            ");
+            $stmt->execute([$id]);
+            $candidats = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            return $this->view('elections/candidats', [
+                'election' => $election,
+                'candidats' => $candidats,
+                'a_vote' => $a_vote
+            ]);
+
+        } catch (Exception $e) {
+            $_SESSION['error'] = $e->getMessage();
+            header('Location: ' . BASE_URL . '/public/elections/en-cours');
+            exit();
+        }
+    }
 }

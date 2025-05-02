@@ -37,9 +37,18 @@ class ParametreController extends Controller {
         }
 
         try {
+            // Get current parameters first
+            $stmt = $this->conn->query("SELECT logo_path FROM parametres LIMIT 1");
+            $currentParams = $stmt->fetch(PDO::FETCH_ASSOC);
+            
             // Traitement du logo
-            $logo_path = isset($parametres['logo_path']) ? $parametres['logo_path'] : null;
+            $logo_path = isset($currentParams['logo_path']) ? $currentParams['logo_path'] : null;
+            
             if (isset($_FILES['logo']) && $_FILES['logo']['error'] === UPLOAD_ERR_OK) {
+                // Delete old logo if exists
+                if ($logo_path && file_exists($this->uploadsDir . $logo_path)) {
+                    @unlink($this->uploadsDir . $logo_path);
+                }
                 $logo_path = $this->handleLogoUpload($_FILES['logo']);
             }
 

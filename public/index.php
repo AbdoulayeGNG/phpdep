@@ -23,6 +23,8 @@ $router->addRoute('GET', '/elections/a-venir', 'ElecteurController@electionsAVen
 $router->addRoute('GET', '/mes-votes', 'ElecteurController@mesVotes');
 $router->addRoute('GET', '/profile', 'ElecteurController@profile');
 $router->addRoute('GET', '/notifications', 'ElecteurController@notifications');
+$router->addRoute('GET', '/elections/voter/{id}', 'ElecteurController@afficherCandidats');
+$router->addRoute('POST', '/elections/voter', 'ElecteurController@enregistrerVote');
 
 // Admin routes (protected)
 $router->addRoute('GET', '/elections', 'ElectionController@index');
@@ -52,5 +54,9 @@ $router->addRoute('GET', '/rapports', 'RapportController@index');
 // Routes pour les paramètres
 $router->addRoute('GET', '/parametres', 'ParametreController@index');
 $router->addRoute('POST', '/parametres/update', 'ParametreController@update');
+
+// Routes pour le vote
+$router->addRoute('GET', '/election/{id}/candidats', 'ElectionController@showCandidats');
+$router->addRoute('POST', '/vote/submit', 'VoteController@submit');
 
 $router->dispatch();

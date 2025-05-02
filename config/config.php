@@ -17,3 +17,7 @@ define('APP_NAME', 'phpProject');
 define('LOG_PATH', __DIR__ . '/../logs');
 define('ENABLE_ERROR_LOG', true);
 define('ENABLE_AUDIT_LOG', true);
+
+// Afficher les erreurs SQL pendant le développement
+ini_set('display_errors', 1);
+error_reporting(E_ALL);

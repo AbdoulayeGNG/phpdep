@@ -1,21 +1,21 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+session_start();
 
 // Load configuration
 require_once __DIR__ . '/config/config.php';
-require_once __DIR__ . '/config/Database.php';
 
 // Load core classes
+require_once __DIR__ . '/core/Database.php';
 require_once __DIR__ . '/core/Controller.php';
-require_once __DIR__ . '/controllers/AuthController.php';
+require_once __DIR__ . '/core/Router.php';
+
+// Load controllers
 require_once __DIR__ . '/controllers/ElecteurController.php';
+require_once __DIR__ . '/controllers/ParametreController.php';
+require_once __DIR__ . '/controllers/AuthController.php';
 require_once __DIR__ . '/controllers/ElectionController.php';
 require_once __DIR__ . '/controllers/UserController.php';
 require_once __DIR__ . '/controllers/CandidatController.php';
-
-require_once __DIR__ . '/core/Router.php';
 
 // Load helpers
 require_once __DIR__ . '/helpers/functions.php';

@@ -31,11 +31,11 @@
                 </h6>
             </li>
             <li class="nav-item">
-                <a class="nav-link <?= strpos($_SERVER['REQUEST_URI'], 'elections/en-cours') !== false ? 'active' : '' ?>" 
-                   href="<?= BASE_URL ?>/elections/en-cours">
-                    <i class="bi bi-check2-square"></i>
-                    <span>Élections en cours</span>
-                </a>
+              <a class="nav-link <?php echo strpos($_SERVER['REQUEST_URI'], 'elections/en-cours') !== false ? 'active' : ''; ?>" 
+                 href="<?php echo BASE_URL; ?>/public/elections/en-cours">
+             <i class="bi bi-calendar-check"></i>
+              Élections en cours
+               </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link <?= strpos($_SERVER['REQUEST_URI'], 'elections/a-venir') !== false ? 'active' : '' ?>" 
