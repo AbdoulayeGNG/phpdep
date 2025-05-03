@@ -35,7 +35,7 @@ require_once __DIR__ . '/../layout/header.php';
                     </li> -->
                     <li><hr class="dropdown-divider"></li>
                     <li>
-                        <a class="dropdown-item py-2 fw-medium" href="<?= BASE_URL ?>/public/profile">
+                        <a class="dropdown-item py-2 fw-medium" href="<?= BASE_URL ?>/public/profile/edit">
                             <i class="bi bi-gear-fill me-2 text-secondary"></i>
                             Modifier le profil
                         </a>
@@ -77,6 +77,7 @@ require_once __DIR__ . '/../layout/header.php';
         <!-- Stats Cards -->
         <div class="container mb-5">
             <div class="row g-4">
+                <!-- Élections en cours -->
                 <div class="col-md-4">
                     <div class="card border-0 rounded-4 shadow-sm h-100 hover-shadow">
                         <div class="card-body text-center p-4">
@@ -90,6 +91,8 @@ require_once __DIR__ . '/../layout/header.php';
                         </div>
                     </div>
                 </div>
+
+                <!-- Votes effectués -->
                 <div class="col-md-4">
                     <div class="card border-0 rounded-4 shadow-sm h-100 hover-shadow">
                         <div class="card-body text-center p-4">
@@ -98,11 +101,13 @@ require_once __DIR__ . '/../layout/header.php';
                             </div>
                             <h3 class="card-title h5 fw-bold mb-3">Votes effectués</h3>
                             <p class="display-6 fw-bold text-success mb-0">
-                                <?= isset($nombre_votes) ? $nombre_votes : 0 ?>
+                                <?= $nombre_votes ?>
                             </p>
                         </div>
                     </div>
                 </div>
+
+                <!-- Prochaines élections -->
                 <div class="col-md-4">
                     <div class="card border-0 rounded-4 shadow-sm h-100 hover-shadow">
                         <div class="card-body text-center p-4">
@@ -146,11 +151,7 @@ require_once __DIR__ . '/../layout/header.php';
                                             </span>
                                         </span>
                                         <div class="d-flex gap-2">
-                                            <a href="<?= BASE_URL ?>/public/election/<?= $election['id'] ?>/candidats" 
-                                               class="btn btn-outline-primary btn-sm rounded-pill">
-                                                <i class="bi bi-people-fill me-1"></i>
-                                                Voir les Candidats
-                                            </a>
+                
                                             <?php if($election['a_vote']): ?>
                                                 <span class="badge bg-success rounded-pill px-3 py-2">
                                                     <i class="bi bi-check2-circle me-1"></i>

@@ -12,71 +12,67 @@ class ElecteurController extends Controller {
 
     public function dashboard() {
         try {
-            // Get user data
-            $stmt = $this->conn->prepare("
-                SELECT u.id, u.nom, u.email, u.Nid 
-                FROM utilisateurs u 
-                WHERE u.id = ?
-            ");
-            $stmt->execute([$_SESSION['user_id']]);
-            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+            if (!isset($_SESSION['user_id'])) {
+                header('Location: ' . BASE_URL . '/auth/login');
+                exit;
+            }
 
-            // Get current elections
-            $stmt = $this->conn->prepare("
-                SELECT e.*, 
-                       (SELECT COUNT(*) FROM votes v 
-                        WHERE v.election_id = e.id 
-                        AND v.electeur_id = ?) as a_vote
-                FROM elections e 
-                WHERE e.date_debut <= NOW() 
-                AND e.date_fin >= NOW() 
-                AND e.statut = 'en_cours'
-            ");
+            // Récupérer les élections en cours
+            $stmt = $this->conn->prepare(
+                "SELECT e.*, 
+                       COALESCE((
+                           SELECT 1 FROM votes v 
+                           WHERE v.election_id = e.id 
+                           AND v.utilisateur_id = ?
+                           LIMIT 1
+                       ), 0) as a_vote
+                 FROM elections e 
+                 WHERE e.statut = 'en_cours' 
+                 AND CURRENT_TIMESTAMP BETWEEN e.date_debut AND e.date_fin 
+                 ORDER BY e.date_fin ASC"
+            );
             $stmt->execute([$_SESSION['user_id']]);
             $elections_en_cours = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            // Get upcoming elections
-            $stmt = $this->conn->prepare("
-                SELECT * FROM elections 
-                WHERE date_debut > NOW() 
-                AND statut = 'active'
-            ");
+            // Récupérer le nombre total de votes de l'utilisateur
+            $stmt = $this->conn->prepare(
+                "SELECT COUNT(*) as nombre_votes 
+                 FROM votes 
+                 WHERE utilisateur_id = ?"
+            );
+            $stmt->execute([$_SESSION['user_id']]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            $nombre_votes = $result['nombre_votes'];
+
+            // Récupérer les élections à venir
+            $stmt = $this->conn->prepare(
+                "SELECT * FROM elections 
+                 WHERE statut = 'en_cours' 
+                 AND date_debut > CURRENT_TIMESTAMP 
+                 ORDER BY date_debut ASC"
+            );
             $stmt->execute();
             $elections_a_venir = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            // Get total votes count
-            $stmt = $this->conn->prepare("
-                SELECT COUNT(*) FROM votes 
-                WHERE electeur_id = ?
-            ");
+            // Récupérer les informations de l'utilisateur
+            $stmt = $this->conn->prepare("SELECT * FROM utilisateurs WHERE id = ?");
             $stmt->execute([$_SESSION['user_id']]);
-            $nombre_votes = $stmt->fetchColumn();
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            // Send data to view with default values
             return $this->view('dashboard/electeur', [
-                'user' => $user ? $user : [
-                    'nom' => isset($_SESSION['user_name']) ? $_SESSION['user_name'] : 'Utilisateur',
-                    'email' => isset($_SESSION['user_email']) ? $_SESSION['user_email'] : 'Non défini',
-                    'Nid' => 'Non défini'
-                ],
-                'elections_en_cours' => $elections_en_cours ? $elections_en_cours : array(),
-                'elections_a_venir' => $elections_a_venir ? $elections_a_venir : array(),
-                'nombre_votes' => $nombre_votes ? $nombre_votes : 0
+                'user' => $user,
+                'elections_en_cours' => $elections_en_cours,
+                'elections_a_venir' => $elections_a_venir,
+                'nombre_votes' => $nombre_votes
             ]);
 
-        } catch (Exception $e) {
-            error_log("Error in ElecteurController@dashboard: " . $e->getMessage());
-            // Return view with default values in case of error
+        } catch(PDOException $e) {
+            error_log("Erreur dans le dashboard électeur: " . $e->getMessage());
             return $this->view('dashboard/electeur', [
-                'user' => [
-                    'nom' => isset($_SESSION['user_name']) ? $_SESSION['user_name'] : 'Utilisateur',
-                    'email' => isset($_SESSION['user_email']) ? $_SESSION['user_email'] : 'Non défini',
-                    'Nid' => 'Non défini'
-                ],
-                'elections_en_cours' => array(),
-                'elections_a_venir' => array(),
-                'nombre_votes' => 0,
-                'error' => "Une erreur s'est produite lors du chargement des données"
+                'error' => 'Une erreur est survenue lors du chargement du tableau de bord',
+                'elections_en_cours' => [],
+                'elections_a_venir' => [],
+                'nombre_votes' => 0
             ]);
         }
     }

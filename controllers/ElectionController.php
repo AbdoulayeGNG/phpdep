@@ -235,4 +235,91 @@ class ElectionController extends Controller {
             exit();
         }
     }
+
+    public function listeResultats() {
+        try {
+            // Récupérer les élections terminées
+            $stmt = $this->conn->prepare(
+                "SELECT e.*, 
+                        (SELECT COUNT(*) FROM votes v WHERE v.election_id = e.id) as nombre_votes,
+                        (SELECT COUNT(DISTINCT utilisateur_id) FROM votes v WHERE v.election_id = e.id) as participants
+                 FROM elections e 
+                 WHERE e.date_fin < CURRENT_TIMESTAMP
+                 ORDER BY e.date_fin DESC"
+            );
+            $stmt->execute();
+            $elections = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            return $this->view('elections/resultats-liste', [
+                'elections' => $elections
+            ]);
+
+        } catch(PDOException $e) {
+            error_log("Erreur dans listeResultats: " . $e->getMessage());
+            return $this->view('elections/resultats-liste', [
+                'error' => 'Une erreur est survenue lors du chargement des résultats'
+            ]);
+        }
+    }
+
+    public function afficherResultats($id) {
+        try {
+            // Récupérer les détails de l'élection
+            $stmt = $this->conn->prepare(
+                "SELECT e.*, 
+                        (SELECT COUNT(*) FROM votes v WHERE v.election_id = e.id) as nombre_votes,
+                        (SELECT COUNT(DISTINCT utilisateur_id) FROM votes v WHERE v.election_id = e.id) as participants
+                 FROM elections e 
+                 WHERE e.id = ?"
+            );
+            $stmt->execute([$id]);
+            $election = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$election) {
+                throw new Exception('Élection non trouvée');
+            }
+
+            // Récupérer les résultats des candidats
+            $stmt = $this->conn->prepare(
+                "SELECT c.*, u.nom as nom_candidat, u.photo,
+                        COUNT(v.id) as nombre_votes,
+                        ROUND((COUNT(v.id) * 100.0) / 
+                            (SELECT COUNT(*) FROM votes WHERE election_id = ?), 2) as pourcentage
+                 FROM candidats c
+                 INNER JOIN utilisateurs u ON c.utilisateur_id = u.id
+                 LEFT JOIN votes v ON v.candidat_id = c.id
+                 WHERE c.election_id = ? AND c.valide = 1
+                 GROUP BY c.id
+                 ORDER BY nombre_votes DESC"
+            );
+            $stmt->execute([$id, $id]);
+            $resultats = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // Récupérer les statistiques par département/région
+            $stmt = $this->conn->prepare(
+                "SELECT u.departement, COUNT(*) as nombre_votes,
+                        ROUND((COUNT(*) * 100.0) / 
+                            (SELECT COUNT(*) FROM votes WHERE election_id = ?), 2) as pourcentage
+                 FROM votes v
+                 INNER JOIN utilisateurs u ON v.utilisateur_id = u.id
+                 WHERE v.election_id = ?
+                 GROUP BY u.departement
+                 ORDER BY nombre_votes DESC"
+            );
+            $stmt->execute([$id, $id]);
+            $stats_geo = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            return $this->view('elections/resultats-detail', [
+                'election' => $election,
+                'resultats' => $resultats,
+                'stats_geo' => $stats_geo
+            ]);
+
+        } catch(Exception $e) {
+            error_log("Erreur dans afficherResultats: " . $e->getMessage());
+            return $this->view('elections/resultats-detail', [
+                'error' => 'Une erreur est survenue lors du chargement des résultats'
+            ]);
+        }
+    }
 }

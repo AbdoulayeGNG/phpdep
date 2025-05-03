@@ -3,8 +3,10 @@ require_once __DIR__ . '/../bootstrap.php';
 
 $router = new Router();
 
+// Make results page the entry point
+$router->addRoute('GET', '/', 'ElectionController@listeResultats');
+
 // Authentication routes (public)
-$router->addRoute('GET', '/', 'AuthController@login');
 $router->addRoute('GET', '/auth/login', 'AuthController@login');
 $router->addRoute('POST', '/auth/login', 'AuthController@login');
 $router->addRoute('GET', '/auth/register', 'AuthController@showRegister');
@@ -26,6 +28,10 @@ $router->addRoute('GET', '/notifications', 'ElecteurController@notifications');
 $router->addRoute('GET', '/elections/voter/{id}', 'ElecteurController@afficherCandidats');
 $router->addRoute('POST', '/elections/voter', 'ElecteurController@enregistrerVote');
 
+// Profile routes
+$router->addRoute('GET', '/profile/edit', 'ProfileController@edit');
+$router->addRoute('POST', '/profile/update', 'ProfileController@update');
+
 // Admin routes (protected)
 $router->addRoute('GET', '/elections', 'ElectionController@index');
 $router->addRoute('GET', '/elections/create', 'ElectionController@create');
@@ -33,6 +39,10 @@ $router->addRoute('POST', '/elections/store', 'ElectionController@store');
 $router->addRoute('GET', '/elections/edit/{id}', 'ElectionController@edit');
 $router->addRoute('POST', '/elections/update/{id}', 'ElectionController@update');
 $router->addRoute('GET', '/elections/delete/{id}', 'ElectionController@delete');
+
+// Election results routes
+$router->addRoute('GET', '/elections/resultats/{id}', 'ElectionController@afficherResultats');
+$router->addRoute('GET', '/elections/resultats', 'ElectionController@listeResultats');
 
 $router->addRoute('GET', '/users', 'UserController@index');
 $router->addRoute('GET', '/users/create', 'UserController@create');

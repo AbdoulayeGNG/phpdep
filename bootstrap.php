@@ -16,6 +16,8 @@ require_once __DIR__ . '/controllers/AuthController.php';
 require_once __DIR__ . '/controllers/ElectionController.php';
 require_once __DIR__ . '/controllers/UserController.php';
 require_once __DIR__ . '/controllers/CandidatController.php';
+require_once __DIR__ . '/controllers/ProfileController.php';
+
 
 // Load helpers
 require_once __DIR__ . '/helpers/functions.php';
